@@ -1,0 +1,274 @@
+﻿@model IEnumerable<MovieTheater.Models.Movie>
+
+@{
+    ViewData["Title"] = "Movies";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap');
+
+    body {
+        background-color: #050508;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    main, .container { background: transparent !important; }
+
+    .ambient-background {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: -1;
+        background: 
+            radial-gradient(circle at 0% 0%, rgba(254, 1, 154, 0.05), transparent 40%),
+            radial-gradient(circle at 100% 100%, rgba(0, 243, 255, 0.08), transparent 40%);
+        pointer-events: none;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: flex-end; 
+        align-items: center;
+        margin-bottom: 40px; 
+        margin-top: 20px;
+    }
+
+    .btn-create-masterpiece {
+        background: rgba(0, 243, 255, 0.05); 
+        border: 1px solid rgba(0, 243, 255, 0.3); 
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.1); 
+        color: #00f3ff; 
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-create-masterpiece:hover {
+        background: rgba(0, 243, 255, 0.15); 
+        border-color: rgba(0, 243, 255, 0.8);
+        box-shadow: 0 0 25px rgba(0, 243, 255, 0.3); 
+        color: #ffffff; 
+        transform: translateY(-2px);
+    }
+
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+        padding-bottom: 80px;
+    }
+
+    .bento-card {
+        background: #0d0d12;
+        border: 1px solid #1f1f2e;
+        border-radius: 16px;
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
+    }
+
+    .bento-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+        transform: skewX(-20deg);
+        transition: left 0.7s ease;
+        pointer-events: none;
+    }
+
+    .bento-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.8),
+            0 0 30px rgba(0, 243, 255, 0.08),
+            0 0 30px rgba(254, 1, 154, 0.08);
+    }
+
+    .bento-card:hover::after {
+        left: 200%;
+    }
+
+    .movie-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 25px;
+        line-height: 1.3;
+        padding-right: 40px;
+    }
+
+    .star-badge {
+        position: absolute;
+        top: 25px; right: 25px;
+        background: rgba(255, 215, 0, 0.05);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        color: #ffd700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.05);
+    }
+
+    .meta-data {
+        display: flex;
+        gap: 15px;
+        color: #8a8f98;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .neon-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-pink { background: #fe019a; box-shadow: 0 0 8px #fe019a; }
+    .dot-cyan { background: #00f3ff; box-shadow: 0 0 8px #00f3ff; }
+    .dot-purple { background: #b026ff; box-shadow: 0 0 8px #b026ff; }
+
+    .action-drawer {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+        opacity: 0;
+        transform: translateY(15px);
+        transition: all 0.4s ease;
+    }
+
+    .bento-card:hover .action-drawer {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .btn-minimal {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        color: #a1a1aa;
+        padding: 10px 0; 
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-minimal:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+
+    .btn-minimal.edit:hover { border-color: #00f3ff; color: #00f3ff; box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1); }
+    .btn-minimal.details:hover { border-color: #b026ff; color: #b026ff; box-shadow: inset 0 0 10px rgba(176, 38, 255, 0.15); } /* Фіолетовий акцент для DATA */
+    .btn-minimal.del:hover { border-color: #fe019a; color: #fe019a; box-shadow: inset 0 0 10px rgba(254, 1, 154, 0.1); }
+</style>
+
+<div class="ambient-background"></div>
+
+<div class="page-header">
+    <a asp-action="Create" class="btn-create-masterpiece">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+        </svg>
+        Додати фільм
+    </a>
+</div>
+
+<div class="bento-grid">
+    @foreach (var item in Model)
+    {
+            <div class="bento-card">
+
+                <div class="star-badge">
+                    ★ @item.Rating
+                </div>
+
+                <div>
+                    <h3 class="movie-title">@item.Title</h3>
+
+                    <div class="meta-data">
+                        <span class="meta-item"><span class="neon-dot dot-cyan"></span> @item.ReleaseYear</span>
+                        <span class="meta-item"><span class="neon-dot dot-purple"></span> @item.Genre</span>
+                        <span class="meta-item"><span class="neon-dot dot-pink"></span> @item.DurationMinutes хв</span>
+                    </div>
+                </div>
+
+                    <div class="action-drawer">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-minimal edit" title="Редагувати">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                          <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                        </svg>
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn-minimal details" title="Переглянути деталі">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                          <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                        </svg>
+                    </a>
+
+                        <button type="button" 
+                            class="btn-minimal del" 
+                            title="Видалити фільм" 
+                            onclick="confirmDelete('@item.Id', '@item.Title')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"/>
+                            </svg>
+                        </button>
+                </div>
+
+            </div>
+    }
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #0d0d12; border: 1px solid #fe019a; border-radius: 20px; box-shadow: 0 0 30px rgba(254, 1, 154, 0.2);">
+            <div class="modal-body text-center p-5">
+                <div style="font-size: 4rem; color: #fe019a; margin-bottom: 20px;">⚠️</div>
+                <h3 style="color: #ffffff; font-weight: 800; margin-bottom: 15px;">ВИДАЛИТИ ФІЛЬМ?</h3>
+                <p style="color: #8a8f98; margin-bottom: 30px;">Ви впевнені, що хочете видалити фільм <br><b id="movieTitleDisplay" style="color: #ffffff;"></b>? <br>Цю дію неможливо буде скасувати.</p>
+
+                <form id="deleteForm" method="post">
+                    <div style="display: flex; gap: 15px;">
+                        <button type="button" class="btn-minimal" style="flex: 1; padding: 12px;" data-bs-dismiss="modal">Скасувати</button>
+                        <button type="submit" class="btn-minimal del" style="flex: 1; padding: 12px; border-color: #fe019a; color: #fe019a;">Видалити</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(id, title) {
+        document.getElementById('movieTitleDisplay').innerText = title;
+        document.getElementById('deleteForm').action = '/Movies/Delete/' + id;
+        var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        myModal.show();
+    }
+</script>

@@ -1,0 +1,268 @@
+﻿@model MovieTheater.Models.Movie
+
+@{
+    ViewData["Title"] = "Editing a movie";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    body {
+        background-color: #050508;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    main, .container { background: transparent !important; }
+
+    .ambient-background {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: -1;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(176, 38, 255, 0.08), transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(0, 243, 255, 0.05), transparent 40%);
+        pointer-events: none;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+        margin-top: 20px;
+    }
+
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -1px;
+        margin-bottom: 10px;
+    }
+
+    .form-subtitle {
+        color: #b026ff;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+
+    .glass-form-container {
+        max-width: 650px;
+        margin: 0 auto;
+        background: rgba(13, 13, 18, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-top: 1px solid rgba(176, 38, 255, 0.3);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(176, 38, 255, 0.05);
+    }
+
+    .form-group { margin-bottom: 25px; }
+
+    .cyber-label {
+        display: block;
+        color: #a0aec0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .cyber-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .cyber-input:focus {
+        background: rgba(176, 38, 255, 0.05); 
+        box-shadow: 0 0 15px rgba(176, 38, 255, 0.2), inset 0 0 10px rgba(176, 38, 255, 0.05);
+        outline: none;
+    }
+
+    .cyber-input option { background-color: #0d0d12; color: #ffffff; }
+
+    .cyber-checkbox-list {
+        max-height: 180px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .cyber-checkbox-list::-webkit-scrollbar { width: 8px; }
+    .cyber-checkbox-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); border-radius: 10px; }
+    .cyber-checkbox-list::-webkit-scrollbar-thumb { background: rgba(176, 38, 255, 0.2); border-radius: 10px; }
+    .cyber-checkbox-list::-webkit-scrollbar-thumb:hover { background: rgba(176, 38, 255, 0.5); }
+
+    .cyber-check-item {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cyber-check-input {
+        accent-color: #b026ff;
+        width: 18px; height: 18px; cursor: pointer;
+    }
+
+    .cyber-check-label { cursor: pointer; color: #e2e8f0; font-size: 0.95rem; transition: color 0.2s; }
+    .cyber-check-label:hover { color: #ffffff; }
+    .help-text { display: block; margin-top: 8px; font-size: 0.8rem; color: #718096; }
+    .text-danger { color: #fe019a !important; font-size: 0.8rem; margin-top: 5px; display: block; }
+
+    .form-actions { display: flex; gap: 15px; margin-top: 40px; }
+
+    .btn-submit {
+        flex: 2;
+        background: rgba(176, 38, 255, 0.1);
+        border: 1px solid #b026ff;
+        color: #b026ff;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .btn-submit:hover {
+        background: #b026ff;
+        color: #ffffff;
+        box-shadow: 0 0 25px rgba(176, 38, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .btn-back {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #a0aec0;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover { background: rgba(255, 255, 255, 0.1); color: #ffffff; }
+</style>
+
+<div class="ambient-background"></div>
+
+<div class="form-header">
+    <span class="form-subtitle">Оновлення даних</span>
+    <h1 class="form-title">@Model.Title</h1>
+</div>
+
+<div class="glass-form-container">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group">
+            <label asp-for="Title" class="cyber-label">Назва фільму</label>
+            <input asp-for="Title" class="cyber-input" autocomplete="off" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ReleaseYear" class="cyber-label">Рік випуску</label>
+            <input asp-for="ReleaseYear" class="cyber-input" />
+            <span asp-validation-for="ReleaseYear" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Genre" class="cyber-label">Жанр</label>
+            <select asp-for="Genre" class="cyber-input">
+                <option value="" disabled>-- Оберіть жанр --</option>
+                <option value="Бойовик">Бойовик</option>
+                <option value="Комедія">Комедія</option>
+                <option value="Драма">Драма</option>
+                <option value="Фантастика">Фантастика</option>
+                <option value="Наукова фантастика">Наукова фантастика</option>
+                <option value="Триллер">Триллер</option>
+                <option value="Жахи">Жахи</option>
+                <option value="Детектив">Детектив</option>
+                <option value="Мелодрама">Мелодрама</option>
+                <option value="Мультфільм">Мультфільм</option>
+                <option value="Документальний">Документальний</option>
+                <option value="Біографія">Біографія</option>
+            </select>
+            <span asp-validation-for="Genre" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DurationMinutes" class="cyber-label">Тривалість (хв)</label>
+            <input asp-for="DurationMinutes" class="cyber-input" />
+            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Rating" class="cyber-label">Рейтинг (0 - 10)</label>
+            <input asp-for="Rating" class="cyber-input" />
+            <span asp-validation-for="Rating" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="cyber-label">Актори у фільмі</label>
+
+            <div class="cyber-checkbox-list">
+                @if (ViewBag.Actors != null)
+                {
+                    var selectedIds = (List<int>)ViewBag.SelectedActorIds ?? new List<int>();
+
+                    @foreach (var actor in ViewBag.Actors)
+                    {
+                        bool isChecked = selectedIds.Contains(actor.Id);
+
+                                <div class="cyber-check-item">
+                                    <input class="cyber-check-input" 
+                                           type="checkbox" 
+                                           name="selectedActors" 
+                                           value="@actor.Id" 
+                                           id="actor_@actor.Id"
+                            @(isChecked ? "checked" : "")> <label class="cyber-check-label" for="actor_@actor.Id">
+                                @actor.FirstName @actor.LastName
+                                    </label>
+                                </div>
+                    }
+                }
+                else
+                {
+                        <span style="color: #718096; font-size: 0.9rem;">Список акторів не завантажено.</span>
+                }
+            </div>
+            <span class="help-text">Зніміть або поставте галочки, щоб змінити акторський склад.</span>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-back">Скасувати</a>
+            <button type="submit" class="btn-submit">Оновити Фільм</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

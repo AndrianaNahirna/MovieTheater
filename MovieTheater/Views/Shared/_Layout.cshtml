@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MovieTheater.styles.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+</head>
+<body class="d-flex flex-column min-vh-100" style="background-color: #050508;">
+
+    <div class="aurora-bg">
+        <div class="aurora-blob blob-1"></div>
+        <div class="aurora-blob blob-2"></div>
+    </div>
+
+    <style>
+        .floating-header {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1000px;
+            z-index: 1000;
+        }
+
+        .modern-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 10, 20, 0.45);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            border-top: 1px solid rgba(254, 1, 154, 0.2);
+            border-radius: 50px;
+            padding: 10px 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .brand-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .brand-logo .neon-accent { color: #fe019a; text-shadow: 0 0 12px rgba(254, 1, 154, 0.6); }
+
+        .nav-item {
+            color: #a0aec0;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 8px 20px;
+            border-radius: 30px;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .nav-item:hover, .nav-item.active { color: #00f3ff; background: rgba(0, 243, 255, 0.1); }
+
+        main {
+            flex: 1 0 auto;
+            padding-top: 130px;
+            padding-bottom: 40px;
+        }
+
+        .floating-footer {
+            margin-top: auto;
+            padding-bottom: 30px; 
+            display: flex;
+            justify-content: center;
+        }
+
+        .footer-capsule {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 10, 20, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(254, 1, 154, 0.2); 
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2); 
+            border-radius: 50px;
+            padding: 12px 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-brand {
+            color: #8a8f98;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .footer-brand b { color: #ffffff; }
+        .footer-brand span { color: #fe019a; text-shadow: 0 0 8px rgba(254, 1, 154, 0.3); }
+
+        .aurora-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden; }
+        .aurora-blob { position: absolute; width: 600px; height: 600px; filter: blur(100px); opacity: 0.15; border-radius: 50%; }
+        .blob-1 { background: #fe019a; top: -10%; left: -10%; }
+        .blob-2 { background: #00f3ff; bottom: -10%; right: -10%; }
+    </style>
+
+    <header class="floating-header">
+        <nav class="modern-navbar">
+            <a class="brand-logo" asp-controller="Home" asp-action="Index">
+                <span class="neon-accent">MOVIE</span>THEATER
+            </a>
+            <div class="nav-links d-none d-md-flex">
+                <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Головна</a>
+                <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Movies" ? "active" : "")" asp-controller="Movies" asp-action="Index">Фільми</a>
+                <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Actors" ? "active" : "")" asp-controller="Actors" asp-action="Index">Актори</a>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="floating-footer">
+        <div class="footer-capsule">
+            <div class="footer-brand">
+                &copy; 2026 — <b>MOVIE</b><span>THEATER</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

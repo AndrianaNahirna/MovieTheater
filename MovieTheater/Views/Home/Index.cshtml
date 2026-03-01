@@ -1,0 +1,209 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap');
+    @@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+
+    body {
+        background-color: #050508;
+        color: #ffffff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .ambient-background {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        z-index: -1;
+        background: 
+            radial-gradient(circle at 50% 0%, rgba(112, 0, 255, 0.05), transparent 50%),
+            radial-gradient(circle at 0% 100%, rgba(254, 1, 154, 0.05), transparent 40%),
+            radial-gradient(circle at 100% 100%, rgba(0, 243, 255, 0.05), transparent 40%);
+        pointer-events: none;
+    }
+
+    .dashboard-hero {
+        text-align: center;
+        margin-top: 6vh;
+        margin-bottom: 60px;
+        animation: fadeIn 1s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-subtitle {
+        color: #a0aec0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .hero-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 40px;
+        line-height: 1.1;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .text-gradient {
+        background: linear-gradient(to right, #00f3ff, #fe019a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: none;
+    }
+
+    .quick-actions {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 60px;
+    }
+
+    .btn-neon {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid;
+        padding: 16px 36px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-cyan {
+        color: #00f3ff;
+        border-color: rgba(0, 243, 255, 0.4);
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+    }
+    .btn-cyan:hover {
+        background: rgba(0, 243, 255, 0.1);
+        border-color: #00f3ff;
+        box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+        transform: translateY(-3px);
+        color: #ffffff;
+    }
+
+    .btn-pink {
+        color: #fe019a;
+        border-color: rgba(254, 1, 154, 0.4);
+        box-shadow: 0 0 15px rgba(254, 1, 154, 0.1);
+    }
+    .btn-pink:hover {
+        background: rgba(254, 1, 154, 0.1);
+        border-color: #fe019a;
+        box-shadow: 0 0 30px rgba(254, 1, 154, 0.4);
+        transform: translateY(-3px);
+        color: #ffffff;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-bottom: 80px;
+    }
+
+    .stat-card {
+        background: #0d0d12;
+        border: 1px solid #1f1f2e;
+        border-radius: 20px;
+        padding: 35px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(255, 255, 255, 0.1);
+        background: #121218;
+    }
+
+    .stat-card.cyan:hover { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 -5px 25px rgba(0, 243, 255, 0.15); border-top: 1px solid #00f3ff; }
+    .stat-card.purple:hover { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 -5px 25px rgba(176, 38, 255, 0.15); border-top: 1px solid #b026ff; }
+    .stat-card.pink:hover { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 -5px 25px rgba(254, 1, 154, 0.15); border-top: 1px solid #fe019a; }
+    .stat-title {
+        color: #8a8f98;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+    }
+
+    .stat-value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        color: #ffffff;
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .cyan .stat-value { text-shadow: 0 0 20px rgba(0, 243, 255, 0.4); }
+    .purple .stat-value { text-shadow: 0 0 20px rgba(176, 38, 255, 0.4); }
+    .pink .stat-value { text-shadow: 0 0 20px rgba(254, 1, 154, 0.4); }
+
+    .stat-desc {
+        font-size: 0.9rem;
+        color: #5f6368;
+    }
+</style>
+
+<div class="ambient-background"></div>
+
+<div class="dashboard-hero">
+    <h1 class="hero-title">ТВІЙ<br><span class="text-gradient">КІНОВСЕСВІТ</span></h1>
+
+    <div class="quick-actions">
+        <a asp-controller="Movies" asp-action="Create" class="btn-neon btn-cyan">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+            </svg>
+            Додати фільм
+        </a>
+
+        <a asp-controller="Actors" asp-action="Create" class="btn-neon btn-pink">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+            </svg>
+            Додати актора
+        </a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card cyan">
+        <div class="stat-title">Всього фільмів</div>
+        <div class="stat-value">@ViewBag.TotalMovies</div>
+    </div>
+
+    <div class="stat-card purple">
+        <div class="stat-title">Всього акторів</div>
+        <div class="stat-value">@ViewBag.TotalActors</div>
+    </div>
+
+    <div class="stat-card pink">
+        <div class="stat-title">Найвищий рейтинг</div>
+        <div class="stat-value">@ViewBag.TopRating</div>
+    </div>
+</div>
