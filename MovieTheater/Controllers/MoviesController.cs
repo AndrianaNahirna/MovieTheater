@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MovieTheater.Data;
 using MovieTheater.Models;
+using System.Text.Json;
 
 namespace MovieTheater.Controllers
 {
@@ -75,28 +76,56 @@ namespace MovieTheater.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.Actors = _context.Actors.ToList();  
+            ViewBag.Actors = _context.Actors.ToList();
+            ViewBag.SelectedActorIds = selectedActors?.ToList() ?? new List<int>();
             return View(movie);
         }
 
         // GET: Movies/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null) return NotFound();
+
+            var sessionData = HttpContext.Session.GetString($"EditMovie_{id}");
+            Movie movie;
+            List<int> selectedActorIds;
+
+            if (!string.IsNullOrEmpty(sessionData))
             {
-                return NotFound();
+                movie = JsonSerializer.Deserialize<Movie>(sessionData);
+
+                selectedActorIds = movie.ActorMovies?.Select(am => am.ActorId).ToList() ?? new List<int>();
+            }
+            else
+            {
+                movie = await _context.Movies
+                    .Include(m => m.ActorMovies)
+                    .FirstOrDefaultAsync(m => m.Id == id);
+
+                if (movie == null) return NotFound();
+
+                var movieForSession = new Movie
+                {
+                    Id = movie.Id,
+                    Title = movie.Title,
+                    ReleaseYear = movie.ReleaseYear,
+                    Genre = movie.Genre,
+                    DurationMinutes = movie.DurationMinutes,
+                    Rating = movie.Rating,
+                    ActorMovies = movie.ActorMovies.Select(am => new ActorMovie
+                    {
+                        ActorId = am.ActorId,
+                        MovieId = am.MovieId
+                    }).ToList()
+                };
+
+                HttpContext.Session.SetString($"EditMovie_{id}", JsonSerializer.Serialize(movieForSession));
+                selectedActorIds = movie.ActorMovies.Select(am => am.ActorId).ToList();
             }
 
-            var movie = await _context.Movies.FindAsync(id);
-            if (movie == null)
-            {
-                return NotFound();
-            }
             ViewBag.Actors = _context.Actors.ToList();
-            ViewBag.SelectedActorIds = _context.ActorMovies
-                    .Where(am => am.MovieId == id)
-                    .Select(am => am.ActorId)
-                    .ToList();
+            ViewBag.SelectedActorIds = selectedActorIds;
+
             return View(movie);
         }
 
@@ -105,34 +134,50 @@ namespace MovieTheater.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseYear,Genre,DurationMinutes,Rating")] Movie movie)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseYear,Genre,DurationMinutes,Rating")] Movie movie, int[] selectedActors)
         {
-            if (id != movie.Id)
-            {
-                return NotFound();
-            }
+            if (id != movie.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(movie);
+
+                    var existingLinks = _context.ActorMovies.Where(am => am.MovieId == id);
+                    _context.ActorMovies.RemoveRange(existingLinks);
+                    if (selectedActors != null)
+                    {
+                        foreach (var actorId in selectedActors)
+                        {
+                            _context.ActorMovies.Add(new ActorMovie { MovieId = id, ActorId = actorId });
+                        }
+                    }
                     await _context.SaveChangesAsync();
+
+                    HttpContext.Session.Remove($"EditMovie_{id}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MovieExists(movie.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!MovieExists(movie.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
+            movie.ActorMovies = selectedActors?.Select(aId => new ActorMovie { ActorId = aId, MovieId = id }).ToList() ?? new List<ActorMovie>();
+            HttpContext.Session.SetString($"EditMovie_{id}", JsonSerializer.Serialize(movie));
+
+            ViewBag.Actors = _context.Actors.ToList();
+            ViewBag.SelectedActorIds = selectedActors?.ToList() ?? new List<int>();
+
             return View(movie);
+        }
+
+        // GET: Movies/CancelEdit/5
+        public IActionResult CancelEdit(int id)
+        {
+            HttpContext.Session.Remove($"EditMovie_{id}");
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Movies/Delete/5

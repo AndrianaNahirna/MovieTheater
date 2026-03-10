@@ -9,20 +9,21 @@ namespace MovieTheater.Models
         [Key]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Поле 'Назва' є обов'язковим для заповнення.")]
+        [Required(ErrorMessage = "Вкажіть назву фільму.")]
         [StringLength(100, ErrorMessage = "Назва не може бути довшою за 100 символів.")]
+        [RegularExpression(@".*[a-zA-ZА-ЯІЇЄҐa-zа-яіїєґ0-9].*", ErrorMessage = "Назва фільму повинна містити хоча б одну літеру або цифру.")]
         public string Title { get; set; }
 
         [Required(ErrorMessage = "Вкажіть рік випуску.")]
         [ValidReleaseYear] 
         public int ReleaseYear { get; set; }
 
-        [Required(ErrorMessage = "Поле 'Жанр' є обов'язковим.")]
+        [Required(ErrorMessage = "Вкажіть жанр фільму.")]
         [StringLength(50)]
         public string Genre { get; set; }
 
         [Required(ErrorMessage = "Вкажіть тривалість фільму.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Тривалість має бути більшою за 0.")]
+        [Range(1, 600, ErrorMessage = "Тривалість фільму має бути в межах від 1 до 600 хвилин.")]
         public int DurationMinutes { get; set; }
 
         [Required(ErrorMessage = "Вкажіть рейтинг.")]

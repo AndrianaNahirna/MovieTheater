@@ -195,7 +195,15 @@
 
     <div class="section-title">🎞️ Біографія</div>
     <div class="bio-section">
-        @Model.Biography
+        @if (string.IsNullOrEmpty(Model.Biography))
+        {                
+            
+            <span style= "color: #718096; font-style: italic;">Біографія поки що відсутня.</span>
+        }
+        else
+        {
+            @Model.Biography
+        }
     </div>
 
     <div class="section-title">🎬 Фільмографія</div>

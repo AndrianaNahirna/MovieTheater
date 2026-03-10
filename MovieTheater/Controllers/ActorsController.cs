@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MovieTheater.Data;
 using MovieTheater.Models;
+using System.Text.Json;
 
 namespace MovieTheater.Controllers
 {
@@ -70,16 +71,32 @@ namespace MovieTheater.Controllers
         // GET: Actors/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null) return NotFound();
+
+            var sessionData = HttpContext.Session.GetString($"EditActor_{id}");
+            Actor actor;
+
+            if (!string.IsNullOrEmpty(sessionData))
             {
-                return NotFound();
+                actor = JsonSerializer.Deserialize<Actor>(sessionData);
+            }
+            else
+            {
+                actor = await _context.Actors.FindAsync(id);
+                if (actor == null) return NotFound();
+
+                var actorForSession = new Actor
+                {
+                    Id = actor.Id,
+                    FirstName = actor.FirstName,
+                    LastName = actor.LastName,
+                    BirthDate = actor.BirthDate,
+                    Country = actor.Country,
+                    Biography = actor.Biography
+                };
+                HttpContext.Session.SetString($"EditActor_{id}", JsonSerializer.Serialize(actorForSession));
             }
 
-            var actor = await _context.Actors.FindAsync(id);
-            if (actor == null)
-            {
-                return NotFound();
-            }
             return View(actor);
         }
 
@@ -90,10 +107,7 @@ namespace MovieTheater.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,BirthDate,Country,Biography")] Actor actor)
         {
-            if (id != actor.Id)
-            {
-                return NotFound();
-            }
+            if (id != actor.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -101,21 +115,27 @@ namespace MovieTheater.Controllers
                 {
                     _context.Update(actor);
                     await _context.SaveChangesAsync();
+
+                    HttpContext.Session.Remove($"EditActor_{id}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ActorExists(actor.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!ActorExists(actor.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            HttpContext.Session.SetString($"EditActor_{id}", JsonSerializer.Serialize(actor));
+
             return View(actor);
+        }
+
+        // GET: Actors/CancelEdit/5
+        public IActionResult CancelEdit(int id)
+        {
+            HttpContext.Session.Remove($"EditActor_{id}");
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Actors/Delete/5

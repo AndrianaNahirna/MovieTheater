@@ -186,7 +186,7 @@
 
         <div class="form-group">
             <label asp-for="ReleaseYear" class="cyber-label">Рік випуску</label>
-            <input asp-for="ReleaseYear" class="cyber-input" />
+            <input asp-for="ReleaseYear" class="cyber-input" type="number" step="1"/>
             <span asp-validation-for="ReleaseYear" class="text-danger"></span>
         </div>
 
@@ -212,25 +212,30 @@
 
         <div class="form-group">
             <label asp-for="DurationMinutes" class="cyber-label">Тривалість (хв)</label>
-            <input asp-for="DurationMinutes" class="cyber-input" />
+            <input asp-for="DurationMinutes" class="cyber-input" type="number" step="1"/>
             <span asp-validation-for="DurationMinutes" class="text-danger"></span>
         </div>
 
         <div class="form-group">
             <label asp-for="Rating" class="cyber-label">Рейтинг (0 - 10)</label>
-            <input asp-for="Rating" class="cyber-input" />
+            <input asp-for="Rating" class="cyber-input" type="number" step="0.1"/>
             <span asp-validation-for="Rating" class="text-danger"></span>
         </div>
 
         <div class="form-group">
             <label class="cyber-label">Актори у фільмі</label>
 
-            <div class="cyber-checkbox-list">
+            <input type="text" id="actorSearchInput" class="cyber-input" placeholder="Почніть вводити ім'я актора для пошуку..." style="margin-bottom: 12px;" autocomplete="off" />
+
+            <div class="cyber-checkbox-list" id="actorCheckboxList">
                 @if (ViewBag.Actors != null)
                 {
                     var selectedIds = (List<int>)ViewBag.SelectedActorIds ?? new List<int>();
-
-                    @foreach (var actor in ViewBag.Actors)
+                    var sortedActors = ((IEnumerable<MovieTheater.Models.Actor>)ViewBag.Actors)
+                        .OrderByDescending(a => selectedIds.Contains(a.Id))
+                        .ThenBy(a => a.FirstName)
+                        .ToList();
+                    @foreach (var actor in sortedActors)
                     {
                         bool isChecked = selectedIds.Contains(actor.Id);
 
@@ -240,7 +245,8 @@
                                            name="selectedActors" 
                                            value="@actor.Id" 
                                            id="actor_@actor.Id"
-                            @(isChecked ? "checked" : "")> <label class="cyber-check-label" for="actor_@actor.Id">
+                            @(isChecked ? "checked" : "")> 
+                                    <label class="cyber-check-label" for="actor_@actor.Id">
                                 @actor.FirstName @actor.LastName
                                     </label>
                                 </div>
@@ -255,7 +261,7 @@
         </div>
 
         <div class="form-actions">
-            <a asp-action="Index" class="btn-back">Скасувати</a>
+            <a asp-action="CancelEdit" asp-route-id="@Model.Id" class="btn-back">Скасувати</a>
             <button type="submit" class="btn-submit">Оновити Фільм</button>
         </div>
     </form>
@@ -265,4 +271,43 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        document.getElementById('actorSearchInput').addEventListener('input', function (e) {
+            var searchValue = e.target.value.toLowerCase();
+            var actorItems = document.querySelectorAll('#actorCheckboxList .cyber-check-item');
+
+            actorItems.forEach(function (item) {
+                var actorName = item.querySelector('.cyber-check-label').textContent.toLowerCase();
+
+                if (actorName.includes(searchValue)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+            
+            document.querySelectorAll('.cyber-check-input').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    var list = document.getElementById('actorCheckboxList');
+                    var items = Array.from(list.querySelectorAll('.cyber-check-item'));
+
+                    items.sort(function(a, b) {
+                        var aChecked = a.querySelector('.cyber-check-input').checked;
+                        var bChecked = b.querySelector('.cyber-check-input').checked;
+
+                        if (aChecked && !bChecked) return -1;
+                        if (!aChecked && bChecked) return 1;
+
+                        var aName = a.querySelector('.cyber-check-label').textContent.trim();
+                        var bName = b.querySelector('.cyber-check-label').textContent.trim();
+                        return aName.localeCompare(bName);
+                    });
+
+                    items.forEach(function(item) {
+                        list.appendChild(item);
+                    });
+                });
+            });
+    </script>
 }
