@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieTheater.Data;
 using MovieTheater.Models;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MovieTheater.Controllers
 {
@@ -47,6 +48,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Movies/Create
+        [Authorize]
         public IActionResult Create()
         {
             ViewBag.Actors = _context.Actors.ToList();
@@ -58,6 +60,7 @@ namespace MovieTheater.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("Id,Title,ReleaseYear,Genre,DurationMinutes,Rating")] Movie movie, int[] selectedActors)
         {
             if (ModelState.IsValid)
@@ -82,6 +85,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Movies/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -134,6 +138,7 @@ namespace MovieTheater.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseYear,Genre,DurationMinutes,Rating")] Movie movie, int[] selectedActors)
         {
             if (id != movie.Id) return NotFound();
@@ -174,6 +179,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Movies/CancelEdit/5
+        [Authorize]
         public IActionResult CancelEdit(int id)
         {
             HttpContext.Session.Remove($"EditMovie_{id}");
@@ -181,6 +187,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Movies/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -201,6 +208,7 @@ namespace MovieTheater.Controllers
         // POST: Movies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var movie = await _context.Movies.FindAsync(id);

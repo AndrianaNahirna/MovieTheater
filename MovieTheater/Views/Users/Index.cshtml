@@ -1,0 +1,145 @@
+﻿@model IEnumerable<MovieTheater.Models.UserViewModel>
+@inject Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Управління користувачами";
+    var currentUserId = UserManager.GetUserId(User);
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+        <form asp-action="Index" method="get" class="d-flex gap-2">
+            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Пошук за Email..." style="background: rgba(0,0,0,0.5); border: 1px solid #00d2ff; color: #fff; border-radius: 8px; width: 250px;">
+            <button type="submit" class="btn btn-outline-info" style="border-radius: 8px;">Знайти</button>
+            @if (ViewData["CurrentFilter"] != null)
+            {
+                <a asp-action="Index" class="btn btn-outline-secondary" style="border-radius: 8px;">Усі</a>
+            }
+        </form>
+
+        <a asp-action="Create" class="btn" style="background: #ff007f; color: #fff; font-weight: bold; border-radius: 8px; padding: 8px 20px; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);">
+            + Створити користувача
+        </a>
+    </div>
+
+    <div style="background-color: rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px;">
+        <div class="table-responsive">
+            <table class="table table-borderless align-middle" style="color: #fff; margin: 0;">
+                <thead style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <tr>
+                        <th style="color: rgba(255,255,255,0.5); font-weight: 500; padding-bottom: 15px;">Користувач (Email)</th>
+                        <th style="color: rgba(255,255,255,0.5); font-weight: 500; padding-bottom: 15px;">Роль</th>
+                        <th style="color: rgba(255,255,255,0.5); font-weight: 500; padding-bottom: 15px;">Статус</th>
+                        <th style="color: rgba(255,255,255,0.5); font-weight: 500; padding-bottom: 15px; text-align: right;">Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        var isMe = user.Id == currentUserId;
+                        var isAdmin = user.Roles.Contains("Admin");
+
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td style="padding: 15px 0; font-weight: 600; font-size: 1.05rem;">@user.Email</td>
+
+                                <td>
+                                @if (isAdmin)
+                                {
+                                    <span style="background: rgba(255, 0, 127, 0.1); color: #ff007f; border: 1px solid #ff007f; border-radius: 8px; padding: 4px 10px; font-size: 0.85rem; font-weight: bold;">ADMIN</span>
+                                }
+                                else
+                                {
+                                    <span style="background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; border-radius: 8px; padding: 4px 10px; font-size: 0.85rem; font-weight: bold;">USER</span>
+                                }
+                                </td>
+
+                                <td>
+                                @if (user.IsLockedOut)
+                                {
+                                    <span style="color: #ff3333; font-weight: bold; font-size: 0.9rem;">🚫 Заблокований</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #00ff88; font-weight: bold; font-size: 0.9rem;">● Активний</span>
+                                }
+                                </td>
+
+                                <td style="text-align: right; padding: 15px 0;">
+                                    <div class="d-flex justify-content-end gap-2">
+
+                                    @if (!isMe)
+                                    {
+                                            <button type="button" class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#modal-@user.Id" style="background: rgba(255, 255, 255, 0.1); color: #fff; border-radius: 8px; font-size: 0.8rem;">
+                                                Деталі
+                                            </button>
+                                            <form asp-action="ToggleLock" asp-route-id="@user.Id" method="post" class="m-0">
+                                                <button type="submit" class="btn btn-sm" style="background: @(user.IsLockedOut ? "rgba(0, 255, 136, 0.1)" : "rgba(255, 51, 51, 0.1)"); color: @(user.IsLockedOut ? "#00ff88" : "#ff3333"); border-radius: 8px; font-size: 0.8rem; border: 1px solid @(user.IsLockedOut ? "#00ff88" : "#ff3333");">
+                                                    @(user.IsLockedOut ? "Розблокувати" : "Заблокувати")
+                                                </button>
+                                            </form>
+                                            <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="m-0 delete-form">
+                                                <button type="button" class="btn btn-sm btn-delete-custom" style="background: transparent; border: 1px solid #ff3333; color: #ff3333; border-radius: 8px; font-size: 0.8rem; transition: 0.3s;" onmouseover="this.style.background='#ff3333'; this.style.color='#fff';" onmouseout="this.style.background='transparent'; this.style.color='#ff3333';">
+                                                    Видалити
+                                                </button>
+                                            </form>
+                                    }
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <div class="modal fade" id="modal-@user.Id" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="background-color: #0f0a14; border: 1px solid #00d2ff; border-radius: 15px; color: #fff;">
+                                        <div class="modal-header" style="border-bottom: 1px solid rgba(0, 210, 255, 0.2);">
+                                            <h5 class="modal-title" style="color: #00d2ff; font-weight: bold;">Деталі акаунта</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong style="color: rgba(255,255,255,0.5);">Email:</strong> @user.Email</p>
+                                            <p><strong style="color: rgba(255,255,255,0.5);">ID:</strong> <span style="font-family: monospace; font-size: 0.85rem;">@user.Id</span></p>
+                                            <p><strong style="color: rgba(255,255,255,0.5);">Роль:</strong> @(isAdmin ? "Admin" : "User")</p>                                            <p><strong style="color: rgba(255,255,255,0.5);">Невдалі спроби входу:</strong> @user.AccessFailedCount</p>
+                                            @if (user.IsLockedOut && user.LockoutEnd.HasValue)
+                                            {
+                                                <p><strong style="color: #ff3333;">Заблоковано до:</strong> @user.LockoutEnd.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.querySelectorAll('.btn-delete-custom').forEach(button => {
+            button.addEventListener('click', function (e) {
+                const form = this.closest('.delete-form');
+                Swal.fire({
+                    title: 'Видалити користувача?',
+                    text: "Цю дію неможливо буде скасувати!",
+                    icon: 'warning',
+                    background: '#0f0a14', 
+                    color: '#fff', 
+                    showCancelButton: true,
+                    confirmButtonColor: '#ff3333',
+                    cancelButtonColor: '#00d2ff',
+                    confirmButtonText: 'Так, видалити',
+                    cancelButtonText: 'Скасувати',
+                    customClass: {
+                        popup: 'border border-info rounded-4 shadow-lg'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

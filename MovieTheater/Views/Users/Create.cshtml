@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Створити користувача";
+}
+<style>
+    .identity-input.form-select {
+        cursor: pointer;
+        appearance: none; 
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ff007f'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+    }
+
+    .identity-input option {
+        background-color: #0f0a14 !important; 
+        color: #fff !important;
+        padding: 10px;
+    }
+
+    .identity-input:focus {
+        border-color: #ff007f !important;
+        box-shadow: 0 0 15px rgba(255, 0, 127, 0.3) !important;
+        outline: none;
+    }
+
+    .identity-input option:hover,
+    .identity-input option:focus,
+    .identity-input option:active {
+        background: #ff007f !important;
+        background-color: #ff007f !important;
+        color: #fff !important;
+    }
+</style>
+
+<div class="identity-container">
+    <div class="identity-box">
+        <h2 class="identity-title" style="font-size: 1.8rem; margin-bottom: 5px; color: #ff007f;">НОВИЙ АКАУНТ</h2>
+        <h3 class="identity-subtitle" style="font-size: 1rem;">Створення користувача</h3>
+        <hr class="identity-hr" style="border-color: #ff007f;" />
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="form-floating mb-3 identity-input-group">
+                <input name="email" type="email" class="form-control identity-input" placeholder="name@example.com" required style="border-color: #ff007f;" />
+                <label class="identity-label">Електронна пошта</label>
+            </div>
+
+            <div class="form-floating mb-3 identity-input-group">
+                <input name="password" type="password" class="form-control identity-input" placeholder="Пароль" required style="border-color: #ff007f;" />
+                <label class="identity-label">Пароль</label>
+            </div>
+
+            <div class="form-floating mb-4 identity-input-group">
+                <select name="role" class="form-select identity-input" style="border-color: #ff007f; background-color: transparent; color: #fff;">
+                    <option value="" style="color: #000;">User</option>
+                    <option value="Admin" style="color: #000;">Admin</option>
+                </select>
+                <label class="identity-label">Роль у системі</label>
+            </div>
+
+            <div class="d-flex gap-3 mt-2">
+                <a asp-action="Index" class="btn w-50" style="border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 30px; padding: 12px;">Скасувати</a>
+                <button type="submit" class="btn w-50" style="background-color: #ff007f; color: #fff; font-weight: bold; border-radius: 30px; padding: 12px; box-shadow: 0 0 10px rgba(255,0,127,0.5);">Створити</button>
+            </div>
+        </form>
+    </div>
+</div>

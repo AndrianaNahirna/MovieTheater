@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieTheater.Data;
 using MovieTheater.Models;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MovieTheater.Controllers
 {
@@ -47,6 +48,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Actors/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -57,6 +59,7 @@ namespace MovieTheater.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,BirthDate,Country,Biography")] Actor actor)
         {
             if (ModelState.IsValid)
@@ -69,6 +72,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Actors/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -105,6 +109,7 @@ namespace MovieTheater.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,BirthDate,Country,Biography")] Actor actor)
         {
             if (id != actor.Id) return NotFound();
@@ -132,6 +137,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Actors/CancelEdit/5
+        [Authorize]
         public IActionResult CancelEdit(int id)
         {
             HttpContext.Session.Remove($"EditActor_{id}");
@@ -139,6 +145,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Actors/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -159,6 +166,7 @@ namespace MovieTheater.Controllers
         // POST: Actors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var actor = await _context.Actors.FindAsync(id);

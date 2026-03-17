@@ -7,6 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/identity.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MovieTheater.styles.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -22,11 +23,11 @@
     <style>
         .floating-header {
             position: fixed;
-            top: 25px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
-            max-width: 1000px;
+            max-width: 1200px;
             z-index: 1000;
         }
 
@@ -114,16 +115,31 @@
     </style>
 
     <header class="floating-header">
-        <nav class="modern-navbar">
-            <a class="brand-logo" asp-controller="Home" asp-action="Index">
-                <span class="neon-accent">MOVIE</span>THEATER
-            </a>
-            <div class="nav-links d-none d-md-flex">
+        <header class="floating-header">
+            <nav class="modern-navbar w-100" style="position: relative; display: flex; justify-content: space-between; align-items: center;">
+
+            <div style="z-index: 10;">
+                <a class="brand-logo" asp-controller="Home" asp-action="Index">
+                    <span class="neon-accent">MOVIE</span>THEATER
+                </a>
+            </div>
+
+            <div class="nav-links d-none d-md-flex justify-content-center gap-2" style="position: absolute; left: 50%; transform: translateX(-50%); z-index: 10; white-space: nowrap;">
                 <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Головна</a>
                 <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Movies" ? "active" : "")" asp-controller="Movies" asp-action="Index">Фільми</a>
                 <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Actors" ? "active" : "")" asp-controller="Actors" asp-action="Index">Актори</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")" asp-controller="Users" asp-action="Index">Користувачі</a>
+                    }
             </div>
+
+            <div style="z-index: 10;">
+                <partial name="_LoginPartial" />
+            </div>
+
         </nav>
+    </header>
     </header>
 
     <main role="main">
