@@ -1,0 +1,295 @@
+﻿@{
+    ViewData["Title"] = "Месенджер";
+    var currentReceiver = ViewBag.CurrentReceiver as string;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    .glass-panel {
+        background: rgba(13, 13, 18, 0.6);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-top: 1px solid rgba(0, 243, 255, 0.3);
+        border-radius: 24px;
+        padding: 25px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        height: 85vh;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 60px; 
+    }
+
+    .user-list-item {
+        padding: 15px;
+        border-radius: 15px;
+        color: #a0aec0;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 10px;
+        border: 1px solid transparent;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+
+    .user-list-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+
+    .user-list-item.active {
+        background: rgba(0, 243, 255, 0.1);
+        border: 1px solid rgba(0, 243, 255, 0.4);
+        color: #00f3ff;
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+    }
+
+    .chat-box {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .chat-box::-webkit-scrollbar, #contactList::-webkit-scrollbar { width: 6px; }
+    .chat-box::-webkit-scrollbar-track, #contactList::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .chat-box::-webkit-scrollbar-thumb, #contactList::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.3); border-radius: 10px; }
+
+    .chat-input {
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        color: #fff;
+        border-radius: 12px;
+        padding: 12px 20px;
+        outline: none;
+        width: 100%;
+        transition: 0.3s;
+    }
+    .chat-input:focus {
+        border-color: #00f3ff;
+        box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+    }
+
+    .btn-action {
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        border: 1px solid #00f3ff;
+        background: rgba(0, 243, 255, 0.1);
+        color: #00f3ff;
+    }
+    .btn-action:hover {
+        background: #00f3ff;
+        color: #050508;
+    }
+
+    .unread-dot {
+        width: 12px; height: 12px; border-radius: 50%;
+        background: #fe019a; box-shadow: 0 0 10px #fe019a;
+        display: none; 
+    }
+</style>
+
+<div class="container mt-5 pt-3">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="glass-panel">
+                <h4 style="color: #00f3ff; font-weight: 800; margin-bottom: 20px;">КОРИСТУВАЧІ</h4>
+
+                <input type="text" id="contactSearch" class="chat-input mb-3" placeholder="🔍 Пошук..." autocomplete="none" style="padding: 8px 15px; font-size: 0.9rem;" />
+
+                <div id="contactList" style="overflow-y: auto; flex-grow: 1; padding-right: 5px;">
+                    @if (ViewBag.AllUsers != null)
+                    {
+                        foreach (var u in ViewBag.AllUsers)
+                        {
+                            string activeClass = (u == currentReceiver) ? "active" : "";
+                                <a href="/Chat?receiver=@u" class="user-list-item @activeClass" data-username="@u">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <span>👤 @u.Split('@')[0]</span>
+                                        <span class="unread-dot" id="dot-@u"></span>
+                                    </div>
+                                </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="glass-panel">
+                @if (string.IsNullOrEmpty(currentReceiver))
+                {
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <h4 style="color: rgba(255,255,255,0.3); text-align: center;">Оберіть користувача зліва,<br/>щоб почати чат</h4>
+                    </div>
+                }
+                else
+                {
+                    <h4 style="color: #fe019a; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;">
+                        @currentReceiver.Split('@')[0]
+                    </h4>
+
+                    <div id="privateChatMessages" class="chat-box">
+                    @if (ViewBag.Messages != null)
+                    {
+                        foreach (var msg in ViewBag.Messages)
+                        {
+                            bool isMe = msg.SenderName == User.Identity.Name;
+                            string attachment = "";
+                            if (!string.IsNullOrEmpty(msg.ImageUrl))
+                            {
+                                if (msg.ImageUrl.StartsWith("data:image/")) attachment = $"<br/><img src='{msg.ImageUrl}' style='max-width: 100%; border-radius: 8px; margin-top: 8px;' />";
+                                else attachment = $"<br/><a href='{msg.ImageUrl}' download='{msg.FileName ?? "file"}' style='color: #00f3ff;'>📁 Завантажити {msg.FileName}</a>";
+                            }
+
+                            if (isMe)
+                            {
+                                <div style="padding: 12px 18px; border-radius: 18px 18px 0 18px; max-width: 80%; background: rgba(0, 243, 255, 0.15); border: 1px solid rgba(0, 243, 255, 0.4); color: #fff; align-self: flex-end;">
+                                    <span style="font-size: 0.95rem;">@msg.Text</span> @Html.Raw(attachment)
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="padding: 12px 18px; border-radius: 18px 18px 18px 0; max-width: 80%; background: rgba(254, 1, 154, 0.15); border: 1px solid rgba(254, 1, 154, 0.4); color: #fff; align-self: flex-start;">
+                                    <span style="font-size: 0.95rem;">@msg.Text</span> @Html.Raw(attachment)
+                                </div>
+                            }
+                        }
+                    }
+                    </div>
+
+                        <div class="mt-4" style="display: flex; gap: 10px;">
+                            <input type="hidden" id="myName" value="@User.Identity.Name" />
+                            <input type="hidden" id="receiverName" value="@currentReceiver" />
+
+                            <label class="btn-action btn-back m-0" style="padding: 12px 15px; cursor: pointer; flex-shrink: 0; flex: 0;" title="Прикріпити файл">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/>
+                                </svg>
+                                    <input type="file" id="privateFileInput" style="display: none;" />
+                            </label>
+
+                            <input type="text" id="privateMsgInput" class="chat-input" placeholder="Напишіть повідомлення..." />
+                            <button id="btnSendPrivate" class="btn-action m-0" style="flex-shrink: 0;">Надіслати</button>
+                        </div>
+                    <div id="privateFileNameDisplay" style="color: #00f3ff; font-size: 0.8rem; margin-top: 5px; text-align: right; display: none;"></div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            const connection = new signalR.HubConnectionBuilder().withUrl("/movieChatHub").build();
+            const myName = document.getElementById("myName")?.value;
+            const receiverName = document.getElementById("receiverName")?.value;
+            const btnSend = document.getElementById("btnSendPrivate");
+            const msgInput = document.getElementById("privateMsgInput");
+            const fileInput = document.getElementById("privateFileInput");
+            const fileNameDisplay = document.getElementById("privateFileNameDisplay");
+            const msgList = document.getElementById("privateChatMessages");
+            const contactSearch = document.getElementById("contactSearch");
+
+            if (contactSearch) {
+                contactSearch.addEventListener("keyup", function() {
+                    const filter = this.value.toLowerCase();
+                    const items = document.querySelectorAll(".user-list-item");
+                    items.forEach(item => {
+                        const text = item.getAttribute("data-username").toLowerCase();
+                        if (text.includes(filter)) {
+                            item.style.display = "block";
+                        } else {
+                            item.style.display = "none";
+                        }
+                    });
+                });
+            }
+
+            if (fileInput) {
+                fileInput.addEventListener("change", function() {
+                    if (this.files && this.files[0]) {
+                        fileNameDisplay.innerText = "✓ Файл: " + this.files[0].name;
+                        fileNameDisplay.style.display = "block";
+                    } else fileNameDisplay.style.display = "none";
+                });
+            }
+
+            connection.on("ReceiveDirectMessage", function (sender, receiver, message, fileData, fileName) {
+
+                if (receiver === myName && sender !== receiverName) {
+                    const dot = document.getElementById("dot-" + sender);
+                    if (dot) dot.style.display = "block";
+                    return; 
+                }
+
+                if ((sender === myName && receiver === receiverName) || (sender === receiverName && receiver === myName)) {
+
+                    const isMe = sender === myName;
+                    const msgElement = document.createElement("div");
+                    msgElement.style.padding = "12px 18px";
+                    msgElement.style.maxWidth = "80%";
+                    msgElement.style.wordBreak = "break-word";
+
+                    let attachmentHtml = "";
+                    if (fileData) {
+                        if (fileData.startsWith("data:image/")) attachmentHtml = `<br/><img src="${fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 8px;" />`;
+                        else attachmentHtml = `<br/><a href="${fileData}" download="${fileName || 'file'}" style="color: #00f3ff;">📁 Завантажити ${fileName}</a>`;
+                    }
+
+                    if (isMe) {
+                        msgElement.style.borderRadius = "18px 18px 0 18px";
+                        msgElement.style.background = "rgba(0, 243, 255, 0.15)";
+                        msgElement.style.border = "1px solid rgba(0, 243, 255, 0.4)";
+                        msgElement.style.color = "#fff";
+                        msgElement.style.alignSelf = "flex-end";
+                    } else {
+                        msgElement.style.borderRadius = "18px 18px 18px 0";
+                        msgElement.style.background = "rgba(254, 1, 154, 0.15)";
+                        msgElement.style.border = "1px solid rgba(254, 1, 154, 0.4)";
+                        msgElement.style.color = "#fff";
+                        msgElement.style.alignSelf = "flex-start";
+                    }
+
+                    msgElement.innerHTML = `<span style="font-size: 0.95rem;">${message}</span> ${attachmentHtml}`;
+                    msgList.appendChild(msgElement);
+                    msgList.scrollTop = msgList.scrollHeight;
+                }
+            });
+
+            connection.start().catch(err => console.error(err.toString()));
+
+            if (receiverName && btnSend) {
+                btnSend.addEventListener("click", function () {
+                    const message = msgInput.value;
+                    const file = fileInput.files[0];
+
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            connection.invoke("SendDirectMessage", myName, receiverName, message, e.target.result, file.name)
+                                .catch(err => console.error(err));
+                            msgInput.value = ""; fileInput.value = ""; fileNameDisplay.style.display = "none";
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (message.trim() !== "") {
+                        connection.invoke("SendDirectMessage", myName, receiverName, message, null, null)
+                            .catch(err => console.error(err));
+                        msgInput.value = ""; 
+                    }
+                });
+
+                msgInput.addEventListener("keypress", function (e) {
+                    if (e.key === 'Enter') btnSend.click();
+                });
+            }
+
+            if(msgList) msgList.scrollTop = msgList.scrollHeight;
+        </script>
+}

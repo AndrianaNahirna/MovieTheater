@@ -26,6 +26,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => {
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumReceiveMessageSize = 10 * 1024 * 1024;
+});
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -69,6 +73,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<MovieTheater.Hubs.MovieChatHub>("/movieChatHub");
 
 app.MapRazorPages();
 

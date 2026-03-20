@@ -14,6 +14,8 @@ namespace MovieTheater.Data
         public DbSet<Actor> Actors { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<ActorMovie> ActorMovies { get; set; }
+        public DbSet<MovieMessage> MovieMessages { get; set; }
+        public DbSet<PrivateMessage> PrivateMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

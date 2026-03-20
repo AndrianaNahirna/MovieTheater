@@ -28,6 +28,7 @@ namespace MovieTheater.Controllers
         }
 
         // GET: Movies/Details/5
+        // GET: Movies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -39,14 +40,19 @@ namespace MovieTheater.Controllers
                 .Include(m => m.ActorMovies)
                     .ThenInclude(am => am.Actor)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (movie == null)
             {
                 return NotFound();
             }
 
+            ViewBag.ChatMessages = _context.MovieMessages
+                .Where(m => m.MovieId == id)
+                .OrderBy(m => m.CreatedAt)
+                .ToList();
+
             return View(movie);
         }
-
         // GET: Movies/Create
         [Authorize]
         public IActionResult Create()

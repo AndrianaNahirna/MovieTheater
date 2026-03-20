@@ -21,6 +21,16 @@
     </div>
 
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        footer {
+            flex-shrink: 0;
+        }
         .floating-header {
             position: fixed;
             top: 15px;
@@ -128,7 +138,8 @@
                 <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">Головна</a>
                 <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Movies" ? "active" : "")" asp-controller="Movies" asp-action="Index">Фільми</a>
                 <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Actors" ? "active" : "")" asp-controller="Actors" asp-action="Index">Актори</a>
-                    @if (User.IsInRole("Admin"))
+                <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Chat" ? "active" : "")" asp-controller="Chat" asp-action="Index" style="color: #00f3ff !important;">Месенджер</a>    
+                @if (User.IsInRole("Admin"))
                     {
                         <a class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Users" ? "active" : "")" asp-controller="Users" asp-action="Index">Користувачі</a>
                     }
@@ -159,6 +170,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
